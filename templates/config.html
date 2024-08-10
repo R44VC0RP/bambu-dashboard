@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Printer Configuration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .button-3 {
+            appearance: none;
+            background-color: #2ea44f;
+            border: 1px solid rgba(27, 31, 35, .15);
+            border-radius: 6px;
+            box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+            box-sizing: border-box;
+            color: #fff;
+            cursor: pointer;
+            display: inline-block;
+            font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            padding: 6px 16px;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .button-3:focus:not(:focus-visible):not(.focus-visible) {
+            box-shadow: none;
+            outline: none;
+        }
+
+        .button-3:hover {
+            background-color: #2c974b;
+        }
+
+        .button-3:focus {
+            box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;
+            outline: none;
+        }
+
+        .button-3:disabled {
+            background-color: #94d3a2;
+            border-color: rgba(27, 31, 35, .1);
+            color: rgba(255, 255, 255, .8);
+            cursor: default;
+        }
+
+        .button-3:active {
+            background-color: #298e46;
+            box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">3D Printer Configuration</h1>
+            </div>
+            <div>
+                <button class="button-3" onclick="window.location.href='/'">Back to Dashboard</button>
+            </div>
+        </div>
+
+        <!-- Email Configuration Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Email Configuration</h2>
+            <form id="emailForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="smtpServer" class="block text-sm font-medium text-gray-700">SMTP Server</label>
+                        <input type="text" id="smtpServer" name="smtpServer"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="smtpPort" class="block text-sm font-medium text-gray-700">SMTP Port</label>
+                        <input type="number" id="smtpPort" name="smtpPort"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="smtpUser" class="block text-sm font-medium text-gray-700">SMTP Username</label>
+                        <input type="text" id="smtpUser" name="smtpUser"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="smtpPass" class="block text-sm font-medium text-gray-700">SMTP Password</label>
+                        <input type="password" id="smtpPass" name="smtpPass"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="sendFrom" class="block text-sm font-medium text-gray-700">Send From</label>
+                        <input type="email" id="sendFrom" name="sendFrom"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="sendTo" class="block text-sm font-medium text-gray-700">Send To</label>
+                        <input type="email" id="sendTo" name="sendTo"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="button-3">Save Email Configuration</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Printer Configuration Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-10">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Printer Configuration</h2>
+            <form id="printerForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="printerName" class="block text-sm font-medium text-gray-700">Printer Name</label>
+                        <input type="text" id="printerName" name="printerName"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="printerIP" class="block text-sm font-medium text-gray-700">Printer IP</label>
+                        <input type="text" id="printerIP" name="printerIP"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="accessCode" class="block text-sm font-medium text-gray-700">Access Code</label>
+                        <input type="text" id="accessCode" name="accessCode"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                    <div>
+                        <label for="serialNumber" class="block text-sm font-medium text-gray-700">Serial Number</label>
+                        <input type="text" id="serialNumber" name="serialNumber"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="button-3">Add Printer</button>
+                </div>
+            </form>
+
+            <!-- Printer List -->
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800">Configured Printers</h3>
+                <div id="printerList" class="space-y-4">
+                    <!-- Printer entries will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-20 bg-gray-800 text-white text-center py-4 fixed bottom-0 left-0 right-0">
+        <p>&copy;
+            <script>document.write(new Date().getFullYear());</script> 3D Printer Configuration
+        </p>
+    </footer>
+
+    <script>
+        // Email Configuration Form Submission
+        $('#emailForm').on('submit', function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            $.post('/config/update/email', formData, function (response) {
+                console.log('Email configuration submitted', response);
+            });
+        });
+
+        // Printer Configuration Form Submission
+        $('#printerForm').on('submit', function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            $.post('/config/printers/add', formData, function (response) {
+                console.log('Printer configuration submitted', response);
+                if (response.status === 'success') {
+                    addPrinterToList();
+                } else {
+                    console.error('Failed to add printer:', response.message);
+                }
+            });
+        });
+
+        function addPrinterToList() {
+        const printerName = $('#printerName').val();
+        const printerIP = $('#printerIP').val();
+        const accessCode = $('#accessCode').val();
+        const serialNumber = $('#serialNumber').val();
+        const printerList = $('#printerList');
+
+        const printerData = {
+            name: printerName,
+            ip: printerIP,
+            accessCode: accessCode,
+            serialNumber: serialNumber
+        };
+
+        
+
+            const printerEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 p-4 rounded' });
+            printerEntry.html(`
+                <div class="flex justify-between">
+                    <div class="ml-4">
+                        <h4 class="font-semibold">${printerData.name}</h4>
+                        <p class="text-sm text-gray-600">${printerData.ip}</p>
+                    </div>
+                    <div class="ml-4">
+                        <span class="access-code">${printerData.accessCode}</span>    
+                        <p class="text-sm text-gray-600">${printerData.serialNumber}</p>
+                    </div>
+                </div>
+                <button onclick="removePrinter(this)" class="text-red-500 hover:text-red-700">Remove</button>
+            `);
+
+            printerList.append(printerEntry);
+
+            // Clear the form
+            $('#printerForm')[0].reset();
+        
+    }
+
+        function removePrinter(button) {
+            const printerDiv = $(button).closest('div');
+            const printerName = printerDiv.find('h4').text();
+            printerDiv.remove();
+            console.log('Printer removed');
+            $.ajax({
+                url: '/config/printers/delete',
+                type: 'POST',
+                data: JSON.stringify({ printer_name: printerName }),
+                contentType: 'application/json',
+                success: function (response) {
+                    console.log('Printer configuration updated', response);
+                }
+            });
+        }
+
+        // Load existing configurations
+        function loadExistingConfigurations() {
+            $.get('/config_get', function (data) {
+                console.log('Loading existing configurations', data);
+                // Populate the email form
+                // data is a string, so we need to parse it
+                if (data) {
+
+                    $('#smtpServer').val(data.smtp.smtpserver).css('color', 'green').on('input', function () {
+                        $(this).css('color', 'black');
+                    });
+                    $('#smtpPort').val(data.smtp.smtpport).css('color', 'green').on('input', function () {
+                        $(this).css('color', 'black');
+                    });
+                    $('#smtpUser').val(data.smtp.smtpuser).css('color', 'green').on('input', function () {
+                        $(this).css('color', 'black');
+                    });
+                    $('#smtpPass').val(data.smtp.smtppass).css('color', 'green').on('input', function () {
+                        $(this).css('color', 'black');
+                    });
+                    $('#sendFrom').val(data.smtp.sendfrom).css('color', 'green').on('input', function () {
+                        $(this).css('color', 'black');
+                    });
+                    $('#sendTo').val(data.smtp.sendto).css('color', 'green').on('input', function () {
+                        $(this).css('color', 'black');
+                    });
+                }
+
+                // Populate the printer list
+                if (data.printers && Object.keys(data.printers).length > 0) {
+                    const printerList = $('#printerList');
+                    printerList.empty(); // Clear existing entries
+                    $.each(data.printers, function (printerName, printerData) {
+                        const printerEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 p-4 rounded mb-2' });
+                        printerEntry.html(`
+                            <div class="flex justify-between w-full">
+                                <div class="ml-4">
+                                    <h4 class="font-semibold">${printerName}</h4>
+                                    <p class="text-sm text-gray-600">${printerData.ip}</p>
+                                </div>
+                                <div class="ml-4">
+                                    <span class="access-code">${printerData.access_code}</span>    
+                                    <p class="text-sm text-gray-600">${printerData.serial_number}</p>
+                                </div>
+                                <button onclick="removePrinter(this)" class="text-red-500 hover:text-red-700">Remove</button>
+                            </div>
+                        `);
+                        printerList.append(printerEntry);
+                    });
+                }
+            });
+        }
+
+        
+
+        // Call this function when the page loads
+        $(document).ready(function () {
+            loadExistingConfigurations();
+        });
+    </script>
+</body>
+
+</html>

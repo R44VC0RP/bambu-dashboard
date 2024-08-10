@@ -1,0 +1,5 @@
+__pycache__/
+bambu/
+printers.json
+config.ini
+printer_status.json
