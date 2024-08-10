@@ -1,5 +1,5 @@
 
-# Project Name
+# Bambu Dashboard
 
 ## Overview
 
