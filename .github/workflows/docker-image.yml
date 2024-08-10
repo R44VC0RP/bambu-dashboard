@@ -26,7 +26,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: ./frontend/Dockerfile
+        file: Dockerfile
         push: true
         tags: mandarin3d/bambu-dashboard:latest, mandarin3d/bambu-dashboard:dev-${{ github.run_id }}
         
