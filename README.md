@@ -3,7 +3,7 @@
 
 ## Overview
 
-This project is a comprehensive solution for managing and documenting various aspects of a software project. It includes tools for generating static sites, handling documentation, and managing dependencies.
+This project is (and is evolving to be) a BambuLabs printer management dashboard using MQTT over Python to manage and monitor BambuLabs 3D Printers. You are able to setup email alerting and monitor stages and statuses of 3D Printers.
 
 ### Examples:
 
@@ -11,13 +11,7 @@ This project is a comprehensive solution for managing and documenting various as
 
 ![Screenshot 2024-08-10 183341](https://github.com/user-attachments/assets/61713714-99db-4bde-ae05-9efaafbfd5be)
 
-## Features
+## Docker Setup:
 
-- **Static Site Generation**: Build static HTML files from Markdown files.
-- **Documentation Hosting**: Easily host project documentation using GitHub Pages.
-- **Dependency Management**: Automatically manage and install project dependencies.
-- **Theming and Customization**: Use built-in themes or create custom themes for documentation.
-
-## Docker Setup
-
-
+Get Started Right Away:
+`docker run -d -p 8080:5000 mandarin3d/bambu-dashboard:latest`
