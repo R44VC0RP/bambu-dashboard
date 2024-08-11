@@ -1,0 +1,4 @@
+{"level": "WARNING", "message": "unknown message type received", "timestamp": "2024-08-11T01:40:22.518454+00:00", "logger": "bambuprinter", "module": "bambuprinter", "function": "_on_message", "line": 915, "thread_name": "bambuprinter-session"}
+{"level": "WARNING", "message": "unknown message type received", "timestamp": "2024-08-11T01:40:22.628653+00:00", "logger": "bambuprinter", "module": "bambuprinter", "function": "_on_message", "line": 915, "thread_name": "bambuprinter-session"}
+{"level": "WARNING", "message": "unknown message type received", "timestamp": "2024-08-11T01:40:48.061093+00:00", "logger": "bambuprinter", "module": "bambuprinter", "function": "_on_message", "line": 915, "thread_name": "bambuprinter-session"}
+{"level": "WARNING", "message": "unknown message type received", "timestamp": "2024-08-11T01:40:48.111346+00:00", "logger": "bambuprinter", "module": "bambuprinter", "function": "_on_message", "line": 915, "thread_name": "bambuprinter-session"}
