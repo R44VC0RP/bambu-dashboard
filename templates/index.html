@@ -80,9 +80,9 @@
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">3D Printer Status Dashboard <span class="text-gray-500 text-sm">v0.1.0 - Refreshed every 5 seconds</span></h1>
             </div>
             <div>
-                <button id="darkModeToggle" class="button-3 mr-4" onclick="toggleDark();">
+                <!-- <button id="darkModeToggle" class="button-3 mr-4" onclick="toggleDark();">
                     <i class="fas fa-moon"></i> Toggle Dark Mode
-                </button>
+                </button> -->
                 <button class="button-3" onclick="window.location.href='/config'">Manage Printers</button>
             </div>
         </div>
@@ -90,7 +90,7 @@
             <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500 mb-4"></div>
             <p class="text-lg text-gray-600 dark:text-gray-400">Loading your printers...</p>
         </div>
-        <div id="printerCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div id="printerCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Printer cards will be dynamically inserted here -->
         </div>
     </div>
@@ -177,7 +177,7 @@
                 <p class="mb-2"><span class="font-medium">Time Remaining:</span> ${printerInfo.time_remaining}</p>
                 <p class="mb-2"><span class="font-medium">Print Completion:</span> ${new Date(Date.now() + printerInfo.time_remaining.split(' ').reduce((acc, cur, idx) => acc + (idx === 0 ? parseInt(cur) * 60 * 60 * 1000 : parseInt(cur) * 60 * 1000), 0)).toLocaleString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 <div class="mt-4 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${printerInfo.progress}"></div>
+                    <div class="bg-blue-600 h-2.5 rounded-full animate-pulse" style="width: ${printerInfo.progress}"></div>
                 </div>
                 ` : ''}
             `;
