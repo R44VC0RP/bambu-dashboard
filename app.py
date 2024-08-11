@@ -362,7 +362,7 @@ def restart_main():
 
 
 def main():
-    send_email.send_email("3D Printer Monitor", "Server Started")
+    email_send.send_email("3D Printer Monitor", "Server Started")
 
     global printers
     read_printers_json()

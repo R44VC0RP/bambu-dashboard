@@ -9,6 +9,8 @@ from datetime import datetime
 
 import configparser
 
+
+
 def get_sending_creds():
     config = configparser.ConfigParser()
     config.read('config.ini')
@@ -24,7 +26,7 @@ def get_sending_creds():
     
     return creds
 
-
+print(get_sending_creds())
 
 def email_html(printer_name, message):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
