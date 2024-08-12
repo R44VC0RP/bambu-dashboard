@@ -2,9 +2,9 @@ name: Docker Push
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "redis-test" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "redis-test" ]
 
 jobs:
   build-push-deploy-frontend:
