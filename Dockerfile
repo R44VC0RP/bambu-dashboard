@@ -13,8 +13,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
-# Expose the port that the app will run on
-EXPOSE 5000
+# Install supervisord, Redis, and the supervisor Python package
+RUN apt-get update && apt-get install -y supervisor redis-server && pip install supervisor
 
-# Specify the command to run the application with Gunicorn
-CMD ["python", "app.py"]
+# Copy the supervisord configuration file
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Create a directory for Redis data
+RUN mkdir -p /data/redis
+
+# Expose the ports for the app and Redis
+EXPOSE 5000 6379
+
+# Specify the command to run supervisord
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
