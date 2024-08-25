@@ -6,25 +6,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 from datetime import datetime
+import json
 
 import configparser
 
 
 
 def get_sending_creds():
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    
-    creds = {
-        'smtp_server': config['DEFAULT'].get('smtpserver', ''),
-        'smtp_port': config['DEFAULT'].get('smtpport', ''),
-        'smtp_username': config['DEFAULT'].get('smtpuser', ''),
-        'smtp_password': config['DEFAULT'].get('smtppass', ''),
-        'send_from': config['DEFAULT'].get('sendfrom', ''),
-        'send_to': config['DEFAULT'].get('sendto', '')
-    }
-    
-    return creds
+    config_json = json.load(open('config.json'))
+    return config_json['smtp']
 
 def email_html(printer_name, message):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -160,22 +150,22 @@ def email_html(printer_name, message):
 
 def send_email(printer_name, message):
     msg = MIMEMultipart('alternative')
-    if get_sending_creds()['send_from'] != '':
-        msg['From'] = formataddr(("3D Printer Status", get_sending_creds()['send_from']))
+    if get_sending_creds()['sendfrom'] != '':
+        msg['From'] = formataddr(("3D Printer Status", get_sending_creds()['sendfrom']))
     else:
         return
-    msg['To'] = get_sending_creds()['send_to']
+    msg['To'] = get_sending_creds()['sendto']
     msg['Subject'] = printer_name + ' - ' + message
     html = email_html(printer_name, message)
     
     part = MIMEText(html, 'html')
     msg.attach(part)
-    mailserver = smtplib.SMTP(get_sending_creds()['smtp_server'],get_sending_creds()['smtp_port'])
+    mailserver = smtplib.SMTP(get_sending_creds()['smtpserver'],get_sending_creds()['smtpport'])
     mailserver.ehlo()
     mailserver.starttls()
     mailserver.ehlo()
-    mailserver.login(get_sending_creds()['smtp_username'], get_sending_creds()['smtp_password'])
-    mailserver.sendmail(get_sending_creds()['send_from'], get_sending_creds()['send_to'], msg.as_string())
+    mailserver.login(get_sending_creds()['smtpuser'], get_sending_creds()['smtppass'])
+    mailserver.sendmail(get_sending_creds()['sendfrom'], get_sending_creds()['sendto'], msg.as_string())
     mailserver.quit()
 
     
