@@ -16,17 +16,15 @@ def get_sending_creds():
     config.read('config.ini')
     
     creds = {
-        'smtp_server': config['DEFAULT'].get('smtpserver'),
-        'smtp_port': config['DEFAULT'].get('smtpport'),
-        'smtp_username': config['DEFAULT'].get('smtpuser'),
-        'smtp_password': config['DEFAULT'].get('smtppass'),
-        'send_from': config['DEFAULT'].get('sendfrom'),
-        'send_to': config['DEFAULT'].get('sendto')
+        'smtp_server': config['DEFAULT'].get('smtpserver', ''),
+        'smtp_port': config['DEFAULT'].get('smtpport', ''),
+        'smtp_username': config['DEFAULT'].get('smtpuser', ''),
+        'smtp_password': config['DEFAULT'].get('smtppass', ''),
+        'send_from': config['DEFAULT'].get('sendfrom', ''),
+        'send_to': config['DEFAULT'].get('sendto', '')
     }
     
     return creds
-
-print(get_sending_creds())
 
 def email_html(printer_name, message):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -162,8 +160,10 @@ def email_html(printer_name, message):
 
 def send_email(printer_name, message):
     msg = MIMEMultipart('alternative')
-    msg['From'] = formataddr(("3D Printer Status", get_sending_creds()['send_from']))
-    # set the from name
+    if get_sending_creds()['send_from'] != '':
+        msg['From'] = formataddr(("3D Printer Status", get_sending_creds()['send_from']))
+    else:
+        return
     msg['To'] = get_sending_creds()['send_to']
     msg['Subject'] = printer_name + ' - ' + message
     html = email_html(printer_name, message)

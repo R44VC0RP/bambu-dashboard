@@ -65,53 +65,61 @@
             box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
         }
     </style>
+    <script>
+        // Check for saved theme preference or use system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">3D Printer Configuration</h1>
+                <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">3D Printer Configuration</h1>
             </div>
-            <div>
+            <div class="flex items-center">
                 <button class="button-3" onclick="window.location.href='/'">Back to Dashboard</button>
             </div>
         </div>
 
         <!-- Email Configuration Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Email Configuration</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Email Configuration</h2>
             <form id="emailForm" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="smtpServer" class="block text-sm font-medium text-gray-700">SMTP Server</label>
+                        <label for="smtpServer" class="block text-sm font-medium text-gray-700 dark:text-gray-300">SMTP Server</label>
                         <input type="text" id="smtpServer" name="smtpServer"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="smtpPort" class="block text-sm font-medium text-gray-700">SMTP Port</label>
+                        <label for="smtpPort" class="block text-sm font-medium text-gray-700 dark:text-gray-300">SMTP Port</label>
                         <input type="number" id="smtpPort" name="smtpPort"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="smtpUser" class="block text-sm font-medium text-gray-700">SMTP Username</label>
+                        <label for="smtpUser" class="block text-sm font-medium text-gray-700 dark:text-gray-300">SMTP Username</label>
                         <input type="text" id="smtpUser" name="smtpUser"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="smtpPass" class="block text-sm font-medium text-gray-700">SMTP Password</label>
+                        <label for="smtpPass" class="block text-sm font-medium text-gray-700 dark:text-gray-300">SMTP Password</label>
                         <input type="password" id="smtpPass" name="smtpPass"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="sendFrom" class="block text-sm font-medium text-gray-700">Send From</label>
+                        <label for="sendFrom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Send From</label>
                         <input type="email" id="sendFrom" name="sendFrom"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="sendTo" class="block text-sm font-medium text-gray-700">Send To</label>
+                        <label for="sendTo" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Send To</label>
                         <input type="email" id="sendTo" name="sendTo"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                 </div>
                 <div>
@@ -121,29 +129,29 @@
         </div>
 
         <!-- Printer Configuration Section -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-10">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Printer Configuration</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-10">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Printer Configuration</h2>
             <form id="printerForm" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="printerName" class="block text-sm font-medium text-gray-700">Printer Name</label>
+                        <label for="printerName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Printer Name</label>
                         <input type="text" id="printerName" name="printerName"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="printerIP" class="block text-sm font-medium text-gray-700">Printer IP</label>
+                        <label for="printerIP" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Printer IP</label>
                         <input type="text" id="printerIP" name="printerIP"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="accessCode" class="block text-sm font-medium text-gray-700">Access Code</label>
+                        <label for="accessCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Access Code</label>
                         <input type="text" id="accessCode" name="accessCode"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                     <div>
-                        <label for="serialNumber" class="block text-sm font-medium text-gray-700">Serial Number</label>
+                        <label for="serialNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Serial Number</label>
                         <input type="text" id="serialNumber" name="serialNumber"
-                            class="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-gray-50">
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
                     </div>
                 </div>
                 <div>
@@ -153,7 +161,7 @@
 
             <!-- Printer List -->
             <div class="mt-8">
-                <h3 class="text-xl font-semibold mb-4 text-gray-800">Configured Printers</h3>
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Configured Printers</h3>
                 <div id="printerList" class="space-y-4">
                     <!-- Printer entries will be dynamically inserted here -->
                 </div>
@@ -161,7 +169,7 @@
         </div>
     </div>
 
-    <footer class="mt-20 bg-gray-800 text-white text-center py-4 fixed bottom-0 left-0 right-0">
+    <footer class="mt-20 bg-gray-800 dark:bg-gray-900 text-white text-center py-4 fixed bottom-0 left-0 right-0">
         <p>&copy;
             <script>document.write(new Date().getFullYear());</script> 3D Printer Configuration
         </p>
@@ -207,16 +215,16 @@
 
         
 
-            const printerEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 p-4 rounded' });
+            const printerEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-4 rounded' });
             printerEntry.html(`
                 <div class="flex justify-between">
                     <div class="ml-4">
-                        <h4 class="font-semibold">${printerData.name}</h4>
-                        <p class="text-sm text-gray-600">${printerData.ip}</p>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200">${printerData.name}</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${printerData.ip}</p>
                     </div>
                     <div class="ml-4">
-                        <span class="access-code">${printerData.accessCode}</span>    
-                        <p class="text-sm text-gray-600">${printerData.serialNumber}</p>
+                        <span class="access-code text-gray-800 dark:text-gray-200">${printerData.accessCode}</span>    
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${printerData.serialNumber}</p>
                     </div>
                 </div>
                 <button onclick="removePrinter(this)" class="text-red-500 hover:text-red-700">Remove</button>
@@ -232,15 +240,24 @@
         function removePrinter(button) {
             const printerDiv = $(button).closest('div');
             const printerName = printerDiv.find('h4').text();
-            printerDiv.remove();
-            console.log('Printer removed');
+            console.log('Attempting to remove printer:', printerName);  // Add this line for debugging
+            
             $.ajax({
                 url: '/config/printers/delete',
                 type: 'POST',
-                data: JSON.stringify({ printer_name: printerName }),
-                contentType: 'application/json',
+                contentType: 'application/json',  // Add this line
+                data: JSON.stringify({ printer_name: printerName }),  // Change this line
                 success: function (response) {
                     console.log('Printer configuration updated', response);
+                    if (response.status === 'success') {
+                        printerDiv.remove();
+                        console.log('Printer removed from UI');
+                    } else {
+                        console.error('Failed to remove printer:', response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error removing printer:', error);
                 }
             });
         }
@@ -278,16 +295,16 @@
                     const printerList = $('#printerList');
                     printerList.empty(); // Clear existing entries
                     $.each(data.printers, function (printerName, printerData) {
-                        const printerEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 p-4 rounded mb-2' });
+                        const printerEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-4 rounded mb-2' });
                         printerEntry.html(`
                             <div class="flex justify-between w-full">
                                 <div class="ml-4">
-                                    <h4 class="font-semibold">${printerName}</h4>
-                                    <p class="text-sm text-gray-600">${printerData.ip}</p>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">${printerName}</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">${printerData.ip}</p>
                                 </div>
                                 <div class="ml-4">
-                                    <span class="access-code">${printerData.access_code}</span>    
-                                    <p class="text-sm text-gray-600">${printerData.serial_number}</p>
+                                    <span class="access-code text-gray-800 dark:text-gray-200">${printerData.access_code}</span>    
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">${printerData.serial_number}</p>
                                 </div>
                                 <button onclick="removePrinter(this)" class="text-red-500 hover:text-red-700">Remove</button>
                             </div>
@@ -303,6 +320,17 @@
         // Call this function when the page loads
         $(document).ready(function () {
             loadExistingConfigurations();
+        });
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
         });
     </script>
 </body>

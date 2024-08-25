@@ -9,7 +9,6 @@ import threading
 import email_send
 from flask import Flask, jsonify, render_template, request
 import os
-import configparser
 
 app = Flask(__name__)
 
@@ -19,24 +18,12 @@ printer_status = {}
 global printers_progress
 printers_progress = {}
 
-config_file_path = 'config.ini'
-# create config.ini if it doesn't exist
-if not os.path.exists(config_file_path):
-    config = configparser.ConfigParser()
-    config['DEFAULT'] = {}
-    with open(config_file_path, 'w') as configfile:
-        config.write(configfile)
 
 printers_json_file = "printers.json"
+config_file_path = "config.json"
 
 global printers_json
 printers_json = {}
-
-def restart_program():
-    """Restarts the current program."""
-    print("Restarting the program...")
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
 
 
 def write_printers_json():
@@ -52,6 +39,17 @@ def read_printers_json():
     else:
         with open(printers_json_file, 'r') as json_file:
             printers_json = json.load(json_file)
+
+def write_config_json(config_data):
+    with open(config_file_path, 'w') as json_file:
+        json.dump(config_data, json_file, indent=4)
+
+def read_config_json():
+    if not os.path.exists(config_file_path):
+        return {}
+    else:
+        with open(config_file_path, 'r') as json_file:
+            return json.load(json_file)
 
 @app.route('/status', methods=['GET'])
 def get_status():
@@ -74,9 +72,8 @@ def get_config():
 
 @app.route('/config_get', methods=['GET'])
 def get_config_get():
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
-    smtp_config = dict(config['DEFAULT'])
+    config_data = read_config_json()
+    smtp_config = config_data.get('smtp', {})
     
     global printers_json
     
@@ -106,29 +103,26 @@ def update_email():
     sendFrom = data.get('sendFrom')
     sendTo = data.get('sendTo')
 
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
+    config_data = read_config_json()
 
-    if 'DEFAULT' not in config:
-        config['DEFAULT'] = {}
+    if 'smtp' not in config_data:
+        config_data['smtp'] = {}
 
-    config['DEFAULT']['smtpserver'] = smtp_server
-    config['DEFAULT']['smtpport'] = smtp_port
-    config['DEFAULT']['smtpuser'] = smtp_username
-    config['DEFAULT']['smtppass'] = smtp_password
-    config['DEFAULT']['sendfrom'] = sendFrom
-    config['DEFAULT']['sendto'] = sendTo
+    config_data['smtp']['smtpserver'] = smtp_server
+    config_data['smtp']['smtpport'] = smtp_port
+    config_data['smtp']['smtpuser'] = smtp_username
+    config_data['smtp']['smtppass'] = smtp_password
+    config_data['smtp']['sendfrom'] = sendFrom
+    config_data['smtp']['sendto'] = sendTo
 
-    with open(config_file_path, 'w') as configfile:
-        config.write(configfile)
+    write_config_json(config_data)
 
     return jsonify({"message": "Email configuration updated successfully"})
 
 @app.route('/config/get/email', methods=['GET'])
 def get_email_config():
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
-    return jsonify(config['DEFAULT'])
+    config_data = read_config_json()
+    return jsonify(config_data.get('smtp', {}))
 
 @app.route('/config/printers/add', methods=['POST'])
 def add_printer():
@@ -150,8 +144,8 @@ def add_printer():
         if existing_printer["serial_number"] == serial_number:
             return jsonify({"status": "error", "message": "Serial number already in use"})
     
-    if not check_MQTT_connection(ip, access_code, serial_number):
-        return jsonify({"status": "error", "message": "Printer is not connected"})
+    # if not check_MQTT_connection(ip, access_code, serial_number):
+    #     return jsonify({"status": "error", "message": "Printer is not connected"})
     
     # If no conflicts, add the new printer
     printers_json[printer_name] = {"ip": ip, "access_code": access_code, "serial_number": serial_number}
@@ -161,18 +155,25 @@ def add_printer():
 
 @app.route('/config/printers/delete', methods=['POST'])
 def delete_printer():
-    data = request.form
+    data = request.json
     printer_name = data.get('printer_name')
+    print(f"Attempting to delete printer: {printer_name}")
     read_printers_json()
     if printer_name in printers_json:
         del printers_json[printer_name]
         write_printers_json()
+        print(f"Printer {printer_name} deleted successfully")
         return jsonify({"status": "success"})
     else:
+        print(f"Printer {printer_name} not found")
         return jsonify({"status": "error", "message": "Printer not found"})
 
+
 def start_flask_app():
-    app.run(host='0.0.0.0', port=5000)
+    if os.uname().nodename == 'ExonAir.local':
+        app.run(host='0.0.0.0', port=4300)
+    else:
+        app.run(host='0.0.0.0', port=5000)
 
 
 
