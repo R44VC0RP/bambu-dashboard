@@ -13,15 +13,17 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import atexit
 import requests
+import psutil
 
 app = Flask(__name__)
 
-
+# Function to start mgmtapp.py file then screen session
 def start_mgmtapp():
-    subprocess.run(['screen', '-dmS', 'mgmtapp', 'python', 'mgmtapp.py'])
+    # Use subprocess.Popen to start mgmtapp.py in the background
+    return subprocess.Popen(['python', 'mgmtapp.py'])
 
 # Function to stop mgmtapp.py file then screen session
-def stop_mgmtapp():
+def stop_mgmtapp(process):
     try:
         response = requests.post('http://localhost:3434/shutdown')
         if response.status_code == 200:
@@ -36,20 +38,23 @@ def stop_mgmtapp():
     time.sleep(2)
     
     # If the server is still running, force kill it
-    subprocess.run(['pkill', '-f', 'mgmtapp.py'])
-    subprocess.run(['screen', '-S', 'mgmtapp', '-X', 'quit'])
+    if process.poll() is None:
+        process.terminate()
+        time.sleep(2)
+        if process.poll() is None:
+            process.kill()
 
 # Function to restart mgmtapp.py screen session
-def restart_mgmtapp():
-    stop_mgmtapp()
-    start_mgmtapp()
+def restart_mgmtapp(process):
+    stop_mgmtapp(process)
+    return start_mgmtapp()
 
 # Function to check if mgmtapp.py is running
 def is_mgmtapp_running():
-    result = subprocess.run(['screen', '-list'], capture_output=True, text=True)
-    return 'mgmtapp' in result.stdout
-
-
+    for proc in psutil.process_iter(['name', 'cmdline']):
+        if 'python' in proc.info['name'] and 'mgmtapp.py' in ' '.join(proc.info['cmdline']):
+            return True
+    return False
 
 # Load environment variables
 load_dotenv()
@@ -128,7 +133,8 @@ def mgmtapp_status():
 @app.route('/mgmtapp/restart', methods=['POST'])
 @auth.login_required
 def mgmtapp_restart():
-    restart_mgmtapp()
+    global mgmtapp_process
+    mgmtapp_process = restart_mgmtapp(mgmtapp_process)
     return jsonify({"status": "success"})
 
 @auth.verify_password
@@ -303,10 +309,8 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 if __name__ == '__main__':
     try:
-        if os.uname().nodename == 'ExonAir.local':
-            start_mgmtapp()
-            app.run(host='0.0.0.0', port=4300)
-        else:
-            app.run(host='0.0.0.0', port=5000, debug=True)
+        mgmtapp_process = start_mgmtapp()
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
     finally:
-        cleanup()
+        if mgmtapp_process:
+            stop_mgmtapp(mgmtapp_process)
