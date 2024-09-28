@@ -279,12 +279,12 @@ def check_MQTT_connection(ip, access_code, serial_number):
         print(f"Error checking MQTT connection: {e}")
         return False
 
-@app.route('/printer_status', methods=['GET'])
+@app.route('/api/printer_status', methods=['GET'])
 def printer_status():
     global printer_status
     return jsonify(printer_status)
 
-@app.route('/shutdown', methods=['POST'])
+@app.route('/api/shutdown', methods=['POST'])
 def shutdown():
     shutdown_server()
     return 'Server shutting down...'

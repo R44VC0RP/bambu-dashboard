@@ -25,7 +25,7 @@ def start_mgmtapp():
 # Function to stop mgmtapp.py file then screen session
 def stop_mgmtapp(process):
     try:
-        response = requests.post('http://localhost:3434/shutdown')
+        response = requests.post('/api/shutdown')
         if response.status_code == 200:
             print("mgmtapp.py shutting down gracefully...")
         else:
