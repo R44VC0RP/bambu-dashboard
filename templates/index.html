@@ -117,7 +117,7 @@
         }
 
         function fetchPrinterData() {
-            axios.get('/progress')
+            axios.get('http://localhost:3434/printer_status')
                 .then(response => {
                     const printerData = response.data;
                     console.log(printerData);

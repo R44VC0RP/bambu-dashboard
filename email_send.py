@@ -10,11 +10,10 @@ import json
 
 import configparser
 
+from webapp import get_sending_creds
 
 
-def get_sending_creds():
-    config_json = json.load(open('config.json'))
-    return config_json['smtp']
+
 
 def email_html(printer_name, message):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

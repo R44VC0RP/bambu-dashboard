@@ -6,3 +6,4 @@ printer_status.json
 venv/
 BambuPrinter.log.jsonl
 config.json
+.env

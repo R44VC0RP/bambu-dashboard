@@ -64,6 +64,33 @@
             background-color: #298e46;
             box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
         }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <script>
         // Check for saved theme preference or use system preference
@@ -81,8 +108,9 @@
             <div>
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">3D Printer Configuration</h1>
             </div>
-            <div class="flex items-center">
+            <div class="flex items-center space-x-4">
                 <button class="button-3" onclick="window.location.href='/'">Back to Dashboard</button>
+                <button class="button-3" onclick="restartManagementServer()">Restart Management Server</button>
             </div>
         </div>
 
@@ -167,6 +195,46 @@
                 </div>
             </div>
         </div>
+
+        <!-- Motor Endpoints Configuration Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Motor Endpoints Configuration</h2>
+            <form id="motorEndpointsForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="printerName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Printer Name</label>
+                        <input type="text" id="printerName" name="printerName"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label for="moduleName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Module Name</label>
+                        <input type="text" id="moduleName" name="moduleName"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label for="accessCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Access Code</label>
+                        <input type="text" id="accessCode" name="accessCode"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label for="endpoint" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Endpoint</label>
+                        <input type="text" id="endpoint" name="endpoint"
+                            class="mt-1 block w-full rounded-md border-2 border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-gray-50 dark:bg-gray-700">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="button-3">Add Motor Endpoint</button>
+                </div>
+            </form>
+
+            <!-- Motor Endpoints List -->
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Configured Motor Endpoints</h3>
+                <div id="motorEndpointsList" class="space-y-4">
+                    <!-- Motor endpoint entries will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer class="mt-20 bg-gray-800 dark:bg-gray-900 text-white text-center py-4 fixed bottom-0 left-0 right-0">
@@ -174,6 +242,10 @@
             <script>document.write(new Date().getFullYear());</script> 3D Printer Configuration
         </p>
     </footer>
+
+    <div id="overlay" class="overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
 
     <script>
         // Email Configuration Form Submission
@@ -262,6 +334,80 @@
             });
         }
 
+        // Motor Endpoints Form Submission
+        $('#motorEndpointsForm').on('submit', function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            $.post('/config/motor_endpoints/add', formData, function (response) {
+                console.log('Motor endpoint configuration submitted', response);
+                if (response.status === 'success') {
+                    addMotorEndpointToList();
+                } else {
+                    console.error('Failed to add motor endpoint:', response.message);
+                }
+            });
+        });
+
+        function addMotorEndpointToList() {
+            const printerName = $('#printerName').val();
+            const moduleName = $('#moduleName').val();
+            const accessCode = $('#accessCode').val();
+            const endpoint = $('#endpoint').val();
+            const motorEndpointsList = $('#motorEndpointsList');
+
+            const motorEndpointData = {
+                printerName: printerName,
+                moduleName: moduleName,
+                accessCode: accessCode,
+                endpoint: endpoint
+            };
+
+            const motorEndpointEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-4 rounded' });
+            motorEndpointEntry.html(`
+                <div class="flex justify-between w-full">
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200">${motorEndpointData.printerName}</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${motorEndpointData.moduleName}</p>
+                    </div>
+                    <div class="ml-4">
+                        <span class="access-code text-gray-800 dark:text-gray-200">${motorEndpointData.accessCode}</span>    
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${motorEndpointData.endpoint}</p>
+                    </div>
+                    <button onclick="removeMotorEndpoint(this)" class="text-red-500 hover:text-red-700">Remove</button>
+                </div>
+            `);
+
+            motorEndpointsList.append(motorEndpointEntry);
+
+            // Clear the form
+            $('#motorEndpointsForm')[0].reset();
+        }
+
+        function removeMotorEndpoint(button) {
+            const motorEndpointDiv = $(button).closest('div');
+            const printerName = motorEndpointDiv.find('h4').text();
+            const moduleName = motorEndpointDiv.find('p').first().text();
+            
+            $.ajax({
+                url: '/config/motor_endpoints/delete',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ printer_name: printerName, module_name: moduleName }),
+                success: function (response) {
+                    console.log('Motor endpoint configuration updated', response);
+                    if (response.status === 'success') {
+                        motorEndpointDiv.remove();
+                        console.log('Motor endpoint removed from UI');
+                    } else {
+                        console.error('Failed to remove motor endpoint:', response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error removing motor endpoint:', error);
+                }
+            });
+        }
+
         // Load existing configurations
         function loadExistingConfigurations() {
             $.get('/config_get', function (data) {
@@ -299,7 +445,7 @@
                         printerEntry.html(`
                             <div class="flex justify-between w-full">
                                 <div class="ml-4">
-                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">${printerName}</h4>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">${printerData.name}</h4>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">${printerData.ip}</p>
                                 </div>
                                 <div class="ml-4">
@@ -312,10 +458,53 @@
                         printerList.append(printerEntry);
                     });
                 }
+
+                // Populate the motor endpoints list
+                if (data.motor_endpoints && data.motor_endpoints.length > 0) {
+                    const motorEndpointsList = $('#motorEndpointsList');
+                    motorEndpointsList.empty(); // Clear existing entries
+                    data.motor_endpoints.forEach(function (endpoint) {
+                        const motorEndpointEntry = $('<div>', { class: 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-4 rounded mb-2' });
+                        motorEndpointEntry.html(`
+                            <div class="flex justify-between w-full">
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">${endpoint.printer_name}</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">${endpoint.module_name}</p>
+                                </div>
+                                <div class="ml-4">
+                                    <span class="access-code text-gray-800 dark:text-gray-200">${endpoint.access_code}</span>    
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">${endpoint.endpoint}</p>
+                                </div>
+                                <button onclick="removeMotorEndpoint(this)" class="text-red-500 hover:text-red-700">Remove</button>
+                            </div>
+                        `);
+                        motorEndpointsList.append(motorEndpointEntry);
+                    });
+                }
             });
         }
 
-        
+        function restartManagementServer() {
+            // Show the overlay
+            $('#overlay').show();
+
+            $.ajax({
+                url: '/mgmtapp/restart',
+                type: 'POST',
+                success: function(response) {
+                    console.log('Management server restart initiated', response);
+                    // Hide the overlay
+                    $('#overlay').hide();
+                    alert('Management server restart initiated. Please wait a moment and refresh the page.');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error restarting management server:', error);
+                    // Hide the overlay
+                    $('#overlay').hide();
+                    alert('Failed to restart management server. Please try again.');
+                }
+            });
+        }
 
         // Call this function when the page loads
         $(document).ready(function () {
