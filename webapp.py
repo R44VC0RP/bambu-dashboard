@@ -293,6 +293,16 @@ def delete_motor_endpoint_route():
     
     return jsonify({"status": "success"})
 
+@app.route('/logs')
+def logs():
+    log_file_path = '2app.log'  # Adjust the path if the log file is located elsewhere
+    if os.path.exists(log_file_path):
+        with open(log_file_path, 'r') as log_file:
+            log_content = log_file.read()
+    else:
+        log_content = "Log file not found."
+    return render_template('logs.html', log=log_content)
+
 # Ensure no duplicate route definitions below
 
 def cleanup():

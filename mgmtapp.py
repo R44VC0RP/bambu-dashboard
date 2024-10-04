@@ -19,6 +19,14 @@ import atexit
 # Load environment variables
 load_dotenv()
 
+# Logging
+import logging
+
+# Configure logging
+logging.basicConfig(filename='2app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.info("Starting the application...")
+
 # Connect to MongoDB
 mongo_uri = os.getenv('MONGO_URI')
 client = MongoClient(mongo_uri)
@@ -117,7 +125,7 @@ def poopGenerated(printer):
                     bearer = motor['access_code'].split(",")[2]
                     headers = {"Authorization": f"Bearer {bearer}"}
                     response = requests.post(motor['endpoint'], json={  
-                        "seconds": 35,
+                        "seconds": 60,
                         "speed": 100,
                         "direction": int(motor['access_code'].split(",")[0])
                     }, headers=headers, timeout=5)
@@ -202,18 +210,30 @@ def monitor_printer(printer):
     
     # Print current printer status
     update_printer_status(printer.name, is_printer_idle(printer))
-    active_printers = ""
-    for printer in printers:
-        active_printers += printer.name + ", "
+    active_printers = ", ".join([p.name for p in printers])
     print(f"Active Printers: {active_printers}")
 
     old_state = "idle" if is_printer_idle(printer) else "printing"
-    while True:
+    previous_state = {}
+    
+    # Initialize previous_state with the initial printer status
+    printer_status[printer.name] = {
+        "stage": get_stage_info(printer._current_stage),
+        "progress": f"{printer.percent_complete}%",
+        "time_remaining": format_time(printer.time_remaining),
+        "current_state": old_state
+    }
+    
+    # Serialize the initial printer object to JSON and store in 'doc'
+    printer_json_str = json.dumps(printer, default=printer.jsonSerializer, indent=4, sort_keys=True)
+    printer_status[printer.name]["doc"] = json.loads(printer_json_str)
+    
+    previous_state = printer_status[printer.name].copy()
 
-        #print(f"{printer.name} - Old Stage: {get_stage_info(printer._current_stage)}")
+    while True:
         current_state = "idle" if is_printer_idle(printer) else "printing"
 
-        # Initialize or reset the printer's status to a dictionary
+        # Update printer_status with current information
         printer_status[printer.name] = {
             "stage": get_stage_info(printer._current_stage),
             "progress": f"{printer.percent_complete}%",
@@ -229,15 +249,32 @@ def monitor_printer(printer):
             printerStateChange(printer.name, old_state, current_state)
             old_state = current_state
         
+        # ---------------------------
+        if printer.name == "EXONMAKE B06":
+            # Compute the differences between current_state and previous_state
+            changes = get_dict_diff(previous_state, printer_status[printer.name])
+            if changes:
+                print(f"Changes for {printer.name}: {json.dumps(changes, indent=4)}")
+            # Update previous_state with the current state
+            previous_state = printer_status[printer.name].copy()
+        # ---------------------------
+        
         if current_state == "printing":
+            if printer._spool_state == "Unloading" or printer._spool_state == "Loading":
+                poopGenerated(printer)
             if printer._current_stage == 14:
                 poopGenerated(printer)
+
+            """
+            doc._ams_status
+            doc._spool_state (Unloading, Loading, Loaded)
+            """   
             #print(f"{printer.name} - Print Progress: {printer.percent_complete}% | Current Stage: {get_stage_info(printer._current_stage)}")
         
         else:
             #print(f"{printer.name} - Printer is idle")
             pass
-        time.sleep(5)
+        time.sleep(1)
     
     # Print complete
     print(f"{printer.name} - Print job finished!")
@@ -249,6 +286,23 @@ def monitor_printer(printer):
 
     # End the session
     printer.quit()
+
+def get_dict_diff(old, new, path=""):
+    """
+    Recursively find differences between two dictionaries.
+    Returns a dictionary with the changed keys and their new values.
+    """
+    diffs = {}
+    for key in new:
+        if key not in old:
+            diffs[path + key] = new[key]
+        else:
+            if isinstance(new[key], dict) and isinstance(old[key], dict):
+                nested_diff = get_dict_diff(old[key], new[key], path + key + ".")
+                diffs.update(nested_diff)
+            elif new[key] != old[key]:
+                diffs[path + key] = new[key]
+    return diffs
 
 def is_printer_idle(printer):
     gcode_state = printer._gcode_state

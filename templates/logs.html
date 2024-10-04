@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Printer Logs</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .button-3 {
+            @apply appearance-none bg-green-600 hover:bg-green-700 border border-green-600 text-white rounded-md shadow-md px-4 py-2;
+        }
+
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: #fff;
+        }
+
+        /* Custom Styles */
+        .log-container {
+            @apply bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md p-6 overflow-auto h-96;
+        }
+
+        pre {
+            @apply text-sm;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">3D Printer Logs <span class="text-gray-500 text-sm">v1.0.0</span></h1>
+            <div>
+                <button class="button-3" onclick="window.location.href='/'"><i class="fas fa-home"></i> Home</button>
+                <button class="button-3" onclick="toggleDark();">
+                    <i class="fas fa-moon"></i> Toggle Dark Mode
+                </button>
+            </div>
+        </div>
+
+        <!-- Logs Section -->
+        <div class="log-container">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Application Logs</h2>
+            <pre class="text-gray-700 dark:text-gray-300">{{ log }}</pre>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-10 bg-gray-800 text-white text-center py-4 fixed bottom-0 left-0 right-0">
+        <p>&copy; <script>document.write(new Date().getFullYear());</script> 3D Printer Status Dashboard</p>
+    </footer>
+
+    <!-- Script for Dark Mode Toggle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha512-3j3VU6WC5rPQB4Ld1jnLV7Kd5xr+cq9avvhwqzbH/taCRNURoeEpoPBK9pDyeukwSxwRPJ8fDgvYXd6SkaZ2TA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // Function to get cookie by name
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Initialize Dark Mode based on Cookie
+        const darkModeCookie = getCookie('darkMode');
+        if (darkModeCookie === 'dark') {
+            $('html').addClass('dark');
+        }
+
+        // Toggle Dark Mode
+        function toggleDark() {
+            let darkMode = $.cookie('darkMode') || 'light';
+            if (darkMode === 'dark') {
+                $.cookie('darkMode', 'light', { expires: 365, path: '/' });
+                $('html').removeClass('dark');
+            } else {
+                $.cookie('darkMode', 'dark', { expires: 365, path: '/' });
+                $('html').addClass('dark');
+            }
+        }
+    </script>
+</body>
+</html>
