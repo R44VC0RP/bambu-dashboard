@@ -86,6 +86,15 @@
                 <button class="button-3" onclick="window.location.href='/config'">Manage Printers</button>
             </div>
         </div>
+        
+        <!-- Add the Printers Finishing Soon queue -->
+        <div id="printersFinishingSoon" class="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Printers Finishing Soon</h2>
+            <ul id="finishingSoonList" class="space-y-2">
+                <!-- Printer queue items will be dynamically inserted here -->
+            </ul>
+        </div>
+
         <div class="loading-div flex flex-col items-center justify-center h-64">
             <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500 mb-4"></div>
             <p class="text-lg text-gray-600 dark:text-gray-400">Loading your printers...</p>
@@ -130,6 +139,21 @@
                     
                     const printerCardsContainer = document.getElementById('printerCards');
                     printerCardsContainer.innerHTML = '';
+
+                    // Create an array of printing printers
+                    const printingPrinters = Object.entries(printerData)
+                        .filter(([_, printerInfo]) => printerInfo.current_state === "printing")
+                        .map(([printerName, printerInfo]) => ({ name: printerName, ...printerInfo }));
+
+                    // Sort printing printers by remaining time
+                    printingPrinters.sort((a, b) => {
+                        const timeA = parseTimeRemaining(a.time_remaining);
+                        const timeB = parseTimeRemaining(b.time_remaining);
+                        return timeA - timeB;
+                    });
+
+                    // Update the Printers Finishing Soon queue
+                    updateFinishingSoonQueue(printingPrinters);
 
                     for (const [printerName, printerInfo] of Object.entries(printerData)) {
                         const card = createPrinterCard(printerName, printerInfo);
@@ -182,6 +206,33 @@
                 ` : ''}
             `;
             return card;
+        }
+
+        function parseTimeRemaining(timeString) {
+            const [hours, minutes] = timeString.split(' ');
+            return parseInt(hours) * 60 + parseInt(minutes);
+        }
+
+        function updateFinishingSoonQueue(printingPrinters) {
+            const finishingSoonList = document.getElementById('finishingSoonList');
+            finishingSoonList.innerHTML = '';
+
+            printingPrinters.forEach(printer => {
+                const listItem = document.createElement('li');
+                listItem.className = 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2 rounded';
+                listItem.innerHTML = `
+                    <span class="font-medium text-gray-800 dark:text-gray-200">${printer.name}</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">${printer.time_remaining} remaining</span>
+                `;
+                finishingSoonList.appendChild(listItem);
+            });
+
+            if (printingPrinters.length === 0) {
+                const emptyMessage = document.createElement('li');
+                emptyMessage.className = 'text-gray-600 dark:text-gray-400';
+                emptyMessage.textContent = 'No printers currently printing';
+                finishingSoonList.appendChild(emptyMessage);
+            }
         }
 
         // Fetch printer data initially and then every 5 seconds
