@@ -153,6 +153,10 @@ def get_status():
 def index():
     return render_template('index.html')
 
+@app.route('/devtool', methods=['GET'])
+def devtool():
+    return render_template('devtool.html')
+
 @app.route('/config', methods=['GET'])
 @auth.login_required
 def config():

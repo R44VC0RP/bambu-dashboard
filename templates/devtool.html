@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Printer Development Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Axios for API requests -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- jQuery Cookie -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha512-3j3VU6WC5rPQB4Ld1jnLV7Kd5xr+cq9avvhwqzbH/taCRNURoeEpoPBK9pDyeukwSxwRPJ8fDgvYXd6SkaZ2TA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+        }
+
+        .button-3 {
+            @apply appearance-none bg-green-600 hover:bg-green-700 border border-green-600 text-white rounded-md shadow-md px-4 py-2;
+        }
+
+        code {
+            @apply text-gray-400;
+            padding: 2px;
+            background-color: #222;
+            
+            border-radius: 4px;
+        }
+
+        /* Custom Styles */
+        .card-header {
+            @apply flex justify-between items-center mb-4;
+        }
+
+        .card-section {
+            @apply mb-6;
+        }
+
+        .spinner {
+            @apply animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500;
+        }
+
+        /* Table Styles */
+        table {
+            @apply w-full text-left;
+        }
+
+        th, td {
+            @apply py-2 px-4 text-white;
+        }
+
+        th {
+            @apply bg-gray-700;
+        }
+
+        tr:nth-child(even) {
+            @apply bg-gray-800;
+        }
+
+        /* Scrollable Container */
+        .scrollable {
+            @apply max-h-screen overflow-y-auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen scrollable">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-white">3D Printer Development Dashboard<code>v1.0.0</code></h1>
+            <div>
+                <button class="button-3" onclick="window.location.href='/config'"><i class="fas fa-cogs"></i> Manage Printers</button>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-div flex flex-col items-center justify-center h-64">
+            <div class="spinner mb-4"></div>
+            <p class="text-lg text-white">Loading development data...</p>
+        </div>
+
+        <!-- Printer Cards Container -->
+        <div id="printerDevCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Printer cards will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-10 bg-gray-800 text-white text-center py-4 fixed bottom-0 left-0 right-0">
+        <p>&copy; <script>document.write(new Date().getFullYear());</script> 3D Printer Development Dashboard</p>
+    </footer>
+
+    <!-- Script to Handle Data Fetching and UI Updates -->
+    <script>
+        // Function to get cookie by name
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+
+        
+
+        // Fetch Printer Development Data
+        function fetchPrinterDevData() {
+            axios.get('/api/printer_status')
+                .then(response => {
+                    const printerData = response.data;
+                    if (Object.keys(printerData).length === 0) {
+                        $('.loading-div').show();
+                        $('#printerDevCards').empty();
+                        return;
+                    } else {
+                        $('.loading-div').hide();
+                    }
+
+                    const printerDevCardsContainer = document.getElementById('printerDevCards');
+                    printerDevCardsContainer.innerHTML = '';
+
+                    for (const [printerName, printerInfo] of Object.entries(printerData)) {
+                        const card = createPrinterDevCard(printerName, printerInfo);
+                        printerDevCardsContainer.appendChild(card);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching printer data:', error);
+                    $('.loading-div').show();
+                    $('#printerDevCards').empty();
+                });
+        }
+
+        // Create Printer Development Card
+        function createPrinterDevCard(printerName, printerInfo) {
+            const card = document.createElement('div');
+            card.className = 'bg-gray-800 rounded-lg shadow-md p-6';
+
+            // Determine Status Badge
+            let statusBadge = '';
+            switch(printerInfo.doc._gcode_state) {
+                case 'RUNNING':
+                    statusBadge = '<span class="bg-green-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded">RUNNING</span>';
+                    break;
+                case 'PAUSE':
+                    statusBadge = '<span class="bg-yellow-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded">PAUSED</span>';
+                    break;
+                case 'IDLE':
+                    statusBadge = '<span class="bg-gray-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded">IDLE</span>';
+                    break;
+                default:
+                    statusBadge = '<span class="bg-red-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded">UNKNOWN</span>';
+            }
+
+            card.innerHTML = `
+                <!-- Header -->
+                <div class="card-header">
+                    <div>
+                        <h2 class="text-xl font-semibold text-white">${printerName}</h2>
+                        <p class="text-sm text-gray-400">Model: ${printerInfo.doc._config._printer_model._name_}</p>
+                    </div>
+                    <div>
+                        ${statusBadge}
+                    </div>
+                </div>
+
+                <!-- Printer Status -->
+                <div class="card-section">
+                    <h3 class="text-lg font-medium text-white mb-2">Status Overview</h3>
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr>
+                                <th class="text-left">Current State</th>
+                                <td>${printerInfo.current_state}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Progress</th>
+                                <td>${printerInfo.progress}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Stage</th>
+                                <td>${printerInfo.stage}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Time Remaining</th>
+                                <td>${printerInfo.time_remaining}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Technical Details -->
+                <div class="card-section">
+                    <h3 class="text-lg font-medium text-white mb-2">Technical Details</h3>
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr>
+                                <th class="text-left">3MF File</th>
+                                <td><code>${printerInfo.doc._3mf_file || 'N/A'}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Active Spool</th>
+                                <td><code>${printerInfo.doc._active_spool}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Bed Temperature</th>
+                                <td><code>${printerInfo.doc._bed_temp} °C</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Chamber Temperature</th>
+                                <td><code>${printerInfo.doc._chamber_temp} °C</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Tool Temperature</th>
+                                <td><code>${printerInfo.doc._tool_temp} °C</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Fan Speed</th>
+                                <td><code>${printerInfo.doc._fan_speed}%</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Serial Number</th>
+                                <td><code>${printerInfo.doc._config._serial_number}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Hostname</th>
+                                <td><code>${printerInfo.doc._config._hostname}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">MQTT Username</th>
+                                <td><code>${printerInfo.doc._config._mqtt_username}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">MQTT Port</th>
+                                <td><code>${printerInfo.doc._config._mqtt_port}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Firmware Version</th>
+                                <td><code>${printerInfo.doc._config._firmware_version}</code></td>
+                            </tr>
+                            <!-- Add more technical details as needed -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Spool Information -->
+                <div class="card-section">
+                    <h3 class="text-lg font-medium text-white mb-2">Spool Information</h3>
+                    ${printerInfo.doc._spools.length > 0 ? `
+                        <div class="space-y-4">
+                            ${printerInfo.doc._spools.map(spool => `
+                                <div class="bg-gray-700 p-4 rounded-md">
+                                    <p><span class="font-medium">Spool ID:</span> ${spool._id}</p>
+                                    <p><span class="font-medium">Type:</span> ${spool._type || 'N/A'}</p>
+                                    <p><span class="font-medium">Color:</span> <span class="inline-block w-4 h-4 rounded-full" style="background-color: ${spool._color || '#000'};"></span> ${spool._color || 'N/A'}</p>
+                                    <p><span class="font-medium">Nozzle Temp Max:</span> ${spool._nozzle_temp_max} °C</p>
+                                    <p><span class="font-medium">Nozzle Temp Min:</span> ${spool._nozzle_temp_min} °C</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p class="text-gray-400">No spool information available.</p>'}
+                </div>
+
+                <!-- Configuration Details -->
+                <div class="card-section">
+                    <h3 class="text-lg font-medium text-white mb-2">Configuration</h3>
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr>
+                                <th class="text-left">Access Code</th>
+                                <td>${printerInfo.doc._config._access_code}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">MQTT Client ID</th>
+                                <td>${printerInfo.doc._config._mqtt_client_id}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Auto Recovery</th>
+                                <td>${printerInfo.doc._config._auto_recovery ? 'Enabled' : 'Disabled'}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Auto Switch Filament</th>
+                                <td>${printerInfo.doc._config._auto_switch_filament ? 'Enabled' : 'Disabled'}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Firmware Version</th>
+                                <td>${printerInfo.doc._config._firmware_version}</td>
+                            </tr>
+                            <!-- Add more configuration details as needed -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="card-section">
+                    <h3 class="text-lg font-medium text-white mb-2">Additional Information</h3>
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr>
+                                <th class="text-left">Wifi Signal</th>
+                                <td>${printerInfo.doc._wifi_signal}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Light State</th>
+                                <td>${printerInfo.doc._light_state}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Internal Exception</th>
+                                <td>${printerInfo.doc._internalException || 'None'}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Last Message Time</th>
+                                <td>${new Date(printerInfo.doc._lastMessageTime * 1000).toLocaleString()}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-left">Recent Update</th>
+                                <td>${printerInfo.doc._recent_update ? 'Yes' : 'No'}</td>
+                            </tr>
+                            <!-- Add more additional information as needed -->
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Fetch data initially
+        fetchPrinterDevData();
+
+        // Refetch data every 5 seconds
+        setInterval(fetchPrinterDevData, 5000);
+
+        // Toggle Dark Mode
+        
+    </script>
+</body>
+</html>
