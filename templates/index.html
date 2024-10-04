@@ -142,7 +142,7 @@
 
                     // Create an array of printing printers
                     const printingPrinters = Object.entries(printerData)
-                        .filter(([_, printerInfo]) => printerInfo.current_state === "printing")
+                        .filter(([_, printerInfo]) => printerInfo.current_state === "printing" && printerInfo.doc._gcode_state !== "IDLE" && printerInfo.doc._gcode_state !== "PAUSE")
                         .map(([printerName, printerInfo]) => ({ name: printerName, ...printerInfo }));
 
                     // Sort printing printers by remaining time
@@ -217,12 +217,21 @@
             const finishingSoonList = document.getElementById('finishingSoonList');
             finishingSoonList.innerHTML = '';
 
-            printingPrinters.forEach(printer => {
+            // Sort printers by remaining time
+            printingPrinters.sort((a, b) => parseTimeRemaining(a.time_remaining) - parseTimeRemaining(b.time_remaining));
+
+            const maxTime = Math.max(...printingPrinters.map(p => parseTimeRemaining(p.time_remaining)));
+
+            printingPrinters.forEach((printer, index) => {
                 const listItem = document.createElement('li');
-                listItem.className = 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2 rounded';
+                const remainingTime = parseTimeRemaining(printer.time_remaining);
+                const colorPercentage = Math.round((1 - remainingTime / maxTime) * 100);
+                const clockTimeDone = new Date(Date.now() + remainingTime * 60 * 1000).toLocaleString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                listItem.className = `flex justify-between items-center p-2 rounded`;
+                listItem.style.background = `linear-gradient(to right, rgb(34, 197, 94) ${colorPercentage}%, rgb(239, 68, 68) 100%)`;
                 listItem.innerHTML = `
-                    <span class="font-medium text-gray-800 dark:text-gray-200">${printer.name}</span>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">${printer.time_remaining} remaining</span>
+                    <span class="font-medium text-white">${printer.name}</span>
+                    <span class="text-sm text-white">${printer.time_remaining} remaining | ${clockTimeDone}</span>
                 `;
                 finishingSoonList.appendChild(listItem);
             });
