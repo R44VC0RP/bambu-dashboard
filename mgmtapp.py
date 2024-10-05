@@ -259,8 +259,8 @@ def monitor_printer(printer):
             previous_state = printer_status[printer.name].copy()
         # ---------------------------
         
-        if current_state == "printing":
-            if printer._spool_state == "Unloading" or printer._spool_state == "Loading":
+        if current_state == "printing" and printer._gcode_state != "IDLE":
+            if printer._spool_state == "Loading":
                 poopGenerated(printer)
             if printer._current_stage == 14:
                 poopGenerated(printer)
