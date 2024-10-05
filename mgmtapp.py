@@ -125,7 +125,7 @@ def poopGenerated(printer):
                     bearer = motor['access_code'].split(",")[2]
                     headers = {"Authorization": f"Bearer {bearer}"}
                     response = requests.post(motor['endpoint'], json={  
-                        "seconds": 60,
+                        "seconds": 10,
                         "speed": 100,
                         "direction": int(motor['access_code'].split(",")[0])
                     }, headers=headers, timeout=5)

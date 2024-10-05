@@ -204,6 +204,33 @@
                     <div class="bg-blue-600 h-2.5 rounded-full animate-pulse" style="width: ${printerInfo.progress}"></div>
                 </div>
                 ` : ''}
+
+                <!-- Loaded Filaments Section -->
+                ${printerInfo.doc._spools && printerInfo.doc._spools.length > 0 ? `
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-white mb-3">Loaded Filaments</h3>
+                    <div class="flex flex-wrap gap-4">
+                        ${printerInfo.doc._spools.map(spool => `
+                            <div class="bg-gray-700 p-4 rounded-md shadow-inner w-40">
+                                <p class="text-sm"><span class="font-medium">Spool ID:</span> ${spool._id}</p>
+                                <p class="text-sm"><span class="font-medium">Type:</span> ${spool._type || 'N/A'}</p>
+                                <p class="text-sm flex items-center">
+                                    <span class="font-medium mr-1">Color:</span>
+                                    <span class="inline-block w-3 h-3 rounded-full" style="background-color: ${spool._color || '#000'};"></span>
+                                    <span class="ml-2">${spool._color || 'N/A'}</span>
+                                </p>
+                                <p class="text-sm"><span class="font-medium">Nozzle Temp Max:</span> ${spool._nozzle_temp_max}°C</p>
+                                <p class="text-sm"><span class="font-medium">Nozzle Temp Min:</span> ${spool._nozzle_temp_min}°C</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : `
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-white mb-3">Loaded Filaments</h3>
+                    <p class="text-sm text-gray-400">No filaments loaded.</p>
+                </div>
+                `}
             `;
             return card;
         }
